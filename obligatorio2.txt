@@ -1,0 +1,139 @@
+/*
+1) Obtener todos los datos de los países que hayan construido puertos o astilleros, pero no ambos.
+Considerar aquellas construcciones donde únicamente se utilizaron recursos del tipo
+construcción.
+Preguntas antes de entregar:
+Si un pais tiene ambas contrucciones pero una de ellas no uso recursos de construccion deberia aparecer en el resultado de la consulta:
+Pais
+-> 1 - Uruguay
+Construccion
+1 -> Astillero
+1 -> Puerto
+Recurso
+1 - Construccion
+2 - Otro
+=> Resultado Uruguay aparece en la consulta ya que aunque tiene ambas construcciones una no fue hecha con recursos del tipo construccion.
+*/
+
+SELECT P.IDPAIS, P.NOMBREPAIS FROM PAIS P WHERE P.IDPAIS IN (
+	(SELECT c.IDPAIS FROM CONSTRUCCION c WHERE c.TIPOCONSTRUCCION = 'PUERTO' OR c.TIPOCONSTRUCCION = 'ASTILLERO')
+ 	MINUS (
+	(SELECT c1.IDPAIS FROM CONSTRUCCION c1 JOIN RECURSO r1 ON C1.IDRECURSO = r1.IDRECURSO WHERE c1.TIPOCONSTRUCCION = 'PUERTO' AND R1.TIPORECURSO = 'CONSTRUCCION') 
+	INTERSECT 
+	(SELECT c2.IDPAIS FROM CONSTRUCCION c2 JOIN RECURSO r2 ON C2.IDRECURSO = r2.IDRECURSO WHERE c2.TIPOCONSTRUCCION = 'ASTILLERO' AND R2.TIPORECURSO = 'CONSTRUCCION')
+	)
+);
+
+
+/*
+2) Obtener el id de la partida, el nombre del país, la fecha de creación de la partida y el Alias de
+los jugadores que no hayan realizado trueques de recursos del tipo producto básico nacional
+(PBN).
+Preguntas:
+
+*/
+
+SELECT ppj.IDPAIS , ppj.IDPARTIDA, P.FECHACREACION, ppj.ALIAS FROM PARTIDA p JOIN (
+	(SELECT P1.IDPAIS , P1.IDPARTIDA , P1.ALIAS FROM PAISPARTIDAJUGADOR p1)
+	Minus
+		((SELECT T2.IDPAISA , T2.IDPARTIDAA, T2.JUGADORA FROM TRUEQUE t2 
+			JOIN RECURSO r1 ON T2.IDRECURSOA = R1.IDRECURSO 
+			WHERE R1.TIPORECURSO = 'PBN')
+		UNION
+		(SELECT T3.IDPAISB , T3.IDPARTIDAB, T3.JUGADORB FROM TRUEQUE t3 
+			JOIN RECURSO r2 ON T3.IDRECURSOB = R2.IDRECURSO 
+			WHERE R2.TIPORECURSO = 'PBN'))
+) ppj ON ppj.IDPAIS = p.IDPAIS AND ppj.IDPARTIDA = p.IDPARTIDA;
+
+
+/*
+3) Obtener el nombre y alias de los jugadores que hayan participado en partidas creadas en los
+últimos 3 meses y con la mayor configuración de consumo. Considerar aquellos jugadores que
+participaron con el rol de invitado.
+
+**/
+
+SELECT DISTINCT J.ALIAS, J.NOMBREJUGADOR, PPJ.ROL, P.FECHACREACION , P.CONFIGURACIONCONSUMO FROM PAISPARTIDAJUGADOR ppj
+JOIN PARTIDA p ON PPJ.IDPARTIDA = P.IDPARTIDA AND PPJ.IDPAIS = P.IDPAIS 
+JOIN JUGADOR j ON PPJ.ALIAS = J.ALIAS  
+WHERE MONTHS_BETWEEN(SYSDATE, p.FECHACREACION)  <= 3 AND PPJ.ROL = 'INVITADO' AND P.CONFIGURACIONCONSUMO = (SELECT Max(P2.CONFIGURACIONCONSUMO) FROM PARTIDA p2);
+
+
+/*
+4) Obtener el alias de los jugadores cuyos países hayan intercambiado la menor cantidad del
+recurso hierro en un trueque. Considerar los alias de los jugadores que participan en el trueque
+únicamente como jugador A
+*/
+
+SELECT DISTINCT T.JUGADORA FROM TRUEQUE t JOIN RECURSO r 
+ON T.IDRECURSOA = R.IDRECURSO 
+WHERE Lower(R.NOMBRE) = 'hierro' AND T.IDPAISA = (
+	  SELECT t2.idPaisA
+      FROM trueque t2
+      JOIN recurso r2 ON t2.idRecursoA = r2.idRecurso
+      WHERE LOWER(r2.nombre) = 'hierro' GROUP BY T2.IDPAISA 
+      HAVING SUM(t2.cantidadRecursoA) = (
+      	SELECT MIN(SUM(t3.cantidadRecursoA)) FROM TRUEQUE t3 JOIN 
+      	RECURSO r3 ON t3.idRecursoA = r3.idRecurso
+      	WHERE Lower(r3.NOMBRE) = 'hierro'
+      	GROUP BY t3.IDPAISA 
+      )
+);
+
+/*
+ 5) Obtener el alias y nombre de jugadores cuyos países hayan consumido de todos los recursos
+de tipo “CONSTRUCCIÓN”. Considerar únicamente las construcciones cuyo tipo de operación
+es “CONSUME” y las partidas con una configuración de consumo que supere las 1.000
+unidades.
+*/
+
+
+select distinct PPJ.ALIAS, J.NOMBREJUGADOR from PAISPARTIDAJUGADOR PPJ
+join JUGADOR J on PPJ.ALIAS = J.ALIAS
+join PARTIDA P on P.IDPAIS = PPJ.IDPAIS and P.IDPARTIDA = PPJ.IDPARTIDA and P.CONFIGURACIONCONSUMO > 1000
+where (PPJ.IDPAIS, PPJ.IDPARTIDA ) in (
+	select C.IDPAIS, C.IDPARTIDA from CONSTRUCCION c 
+	join RECURSO r on R.IDRECURSO = C.IDRECURSO
+	where R.TIPORECURSO = 'CONSTRUCCION' and C.TIPOOPERACION = 'CONSUME'
+	group by C.IDPAIS , C.IDPARTIDA
+	having count(DISTINCT c.idRecurso) = (
+        SELECT count(*) FROM recurso WHERE tipoRecurso = 'CONSTRUCCION'
+    )
+);
+
+/*
+6) Obtener el nombre y tipo de recurso que se utilizó la mayor cantidad de veces en construcciones.
+Considerar solamente aquellas construcciones de partidas creadas en los últimos 30 días y que
+dichas partidas no hayan tenido ningún trueque
+ */
+select R.NOMBRE, R.TIPORECURSO from RECURSO R
+where R.IDRECURSO in (
+select C.IDRECURSO from CONSTRUCCION c
+where C.IDCONSTRUCCION  in (select C.IDCONSTRUCCION  from CONSTRUCCION c join PARTIDA p 
+on C.IDPAIS = P.IDPAIS and C.IDPARTIDA  = P.IDPARTIDA
+where (SYSDATE - P.FECHACREACION) < 30 and C.IDPARTIDA in (
+select distinct i.IDPARTIDA  from INVENTARIORECURSO i
+where I.IDPARTIDA not in (select distinct T.IDPARTIDAA  from TRUEQUE t)))
+group by C.IDRECURSO 
+having Count(*) = (select Max(Count(*)) from CONSTRUCCION c2 group by C2.IDRECURSO));
+
+/*
+ 7) Listar para cada partida, el nombre de los países con el menor stock acumulado de recursos de
+tipo “CONSTRUCCIÓN”. Considerar solamente las partidas que hayan realizado algún trueque
+en los que participó el país “Uruguay”, “Brasil” o “Argentina” 
+ */
+
+select distinct P.NOMBREPAIS from Pais p
+	join PARTIDA pr on PR.IDPAIS = P.IDPAIS 
+	join PAISPARTIDAJUGADOR ppj on P.IDPAIS = PPJ.IDPAIS and PR.IDPARTIDA = PPJ.IDPARTIDA and (PPJ.IDPARTIDA, PPJ.IDPAIS) in (
+		select I.IDPARTIDA, I.IDPAIS from INVENTARIORECURSO i 
+		join RECURSO r on I.IDRECURSO = R.IDRECURSO
+		where upper(R.TIPORECURSO) = 'CONSTRUCCION' and ((I.IDPARTIDA, I.IDPAIS) in (
+			select T1.IDPARTIDAA, T1.IDPAISA from TRUEQUE T1 where T1.IDPAISA in (
+				select PS.IDPAIS  from PAIS ps where PS.NOMBREPAIS in ('Uruguay', 'Brasil', 'Argentina'))))
+		group by I.IDPARTIDA, I.IDPAIS
+		having SUM(I.STOCKACUMULADO) = (
+			select MIN(SUM(I2.STOCKACUMULADO)) from INVENTARIORECURSO i2 
+			WHERE i2.idPartida = i.idPartida
+			group by I2.IDPARTIDA, I2.IDPAIS));
+
