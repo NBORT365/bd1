@@ -1,18 +1,399 @@
+-- ==========================================================
+--  SCRIPT DE INSERCIÓN DE DATOS DE PRUEBA - OBLIGATORIO 2 BD1
+--  Universidad ORT Uruguay - Octubre/Nov. 2025
+--  Diseñado para Oracle Database
+--  Nota: usar BEFORE/AFTER cada bloque para probar consultas por ejercicio.
+-- ==========================================================
+-- Convenciones de fechas (ajusta si corrés en otra fecha de referencia):
+--   HOY = 2025-11-02
+--   Últimos 30 días  -> >= 2025-10-03
+--   Últimos 15 días  -> >= 2025-10-18
+--   Últimos 3 meses  -> >= 2025-08-03
+-- ==========================================================
+
+-----------------------------
+-- 0) BASE COMÚN A TODO
+-----------------------------
+-- Jugadores (10)
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('nico',   'Nicolás', 'nico@x.com',   TO_DATE('2024-09-10','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('celi',   'Celina',  'celi@x.com',   TO_DATE('2024-08-02','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('rodr',   'Rodrigo', 'rodr@x.com',   TO_DATE('2025-01-20','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('ana',    'Ana',     'ana@x.com',    TO_DATE('2025-02-12','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('bruno',  'Bruno',   'bruno@x.com',  TO_DATE('2025-03-03','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('sofia',  'Sofía',   'sofia@x.com',  TO_DATE('2025-05-25','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('juan',   'Juan',    'juan@x.com',   TO_DATE('2025-06-10','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('marta',  'Marta',   'marta@x.com',  TO_DATE('2025-07-18','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('lucas',  'Lucas',   'lucas@x.com',  TO_DATE('2025-08-22','YYYY-MM-DD'));
+INSERT INTO jugador (Alias, NombreJugador, Email, FechaRegistro) VALUES ('pablo',  'Pablo',   'pablo@x.com',  TO_DATE('2025-09-15','YYYY-MM-DD'));
+
+-- Países (6)
+INSERT INTO pais (IdPais, NombrePais) VALUES (1, 'Uruguay');
+INSERT INTO pais (IdPais, NombrePais) VALUES (2, 'Argentina');
+INSERT INTO pais (IdPais, NombrePais) VALUES (3, 'Brasil');
+INSERT INTO pais (IdPais, NombrePais) VALUES (4, 'Chile');
+INSERT INTO pais (IdPais, NombrePais) VALUES (5, 'Perú');
+INSERT INTO pais (IdPais, NombrePais) VALUES (6, 'Paraguay');
+
+-- Recursos
+--   PBN: agua potable, medicinas, ropa
+--   CONSTRUCCION: hierro(H), cemento(CE), aluminio(AL), plastico(PL), cobre(CO), carbono(CB)
+--   CONSUMO: petroleo(P), carbon(CA), alimentos(ALI), energia(kW)
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (101, 'Agua Potable', 'PBN');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (102, 'Medicinas',    'PBN');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (103, 'Ropa',         'PBN');
+
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (201, 'Hierro (H)',    'CONSTRUCCION');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (202, 'Cemento (CE)',  'CONSTRUCCION');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (203, 'Aluminio (AL)', 'CONSTRUCCION');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (204, 'Plástico (PL)', 'CONSTRUCCION');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (205, 'Cobre (CO)',    'CONSTRUCCION');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (206, 'Carbono (CB)',  'CONSTRUCCION');
+
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (301, 'Petróleo (P)',   'CONSUMO');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (302, 'Carbón (CA)',    'CONSUMO');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (303, 'Alimentos (ALI)','CONSUMO');
+INSERT INTO recurso (IdRecurso, Nombre, TipoRecurso) VALUES (304, 'Energía (kW)',   'CONSUMO');
+
+-- ==========================================================
+-- EJERCICIO 1
+-- "Países que construyeron PUERTO o ASTILLERO, pero no ambos"
+-- Considerar construcciones que usen solamente recursos de tipo CONSTRUCCION.
+-- Partida 101 (2025-09-01) sin trueques.
+-- Uruguay -> solo PUERTO; Argentina -> solo ASTILLERO; Brasil -> ambos (NO debe salir).
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (101, 1, TO_DATE('2025-09-01','YYYY-MM-DD'), 800);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (101, 2, TO_DATE('2025-09-01','YYYY-MM-DD'), 800);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (101, 3, TO_DATE('2025-09-01','YYYY-MM-DD'), 800);
+
+-- PPJ
+INSERT INTO paisPartidaJugador VALUES (101,1,'nico','ANFITRION');
+INSERT INTO paisPartidaJugador VALUES (101,2,'rodr','INVITADO');
+INSERT INTO paisPartidaJugador VALUES (101,3,'ana','SE UNIO');
+
+-- Inventarios (solo CONSTRUCCION para este ejercicio)
+-- Uruguay
+INSERT INTO inventarioRecurso VALUES (101,1,'nico',201,500);
+INSERT INTO inventarioRecurso VALUES (101,1,'nico',202,400);
+-- Argentina
+INSERT INTO inventarioRecurso VALUES (101,2,'rodr',203,300);
+INSERT INTO inventarioRecurso VALUES (101,2,'rodr',204,300);
+-- Brasil (tendrá ambos)
+INSERT INTO inventarioRecurso VALUES (101,3,'ana',201,200);
+INSERT INTO inventarioRecurso VALUES (101,3,'ana',203,200);
+
+-- Construcciones
+-- Uruguay: PUERTO (usa 201/202) -> SOLO PUERTO
+INSERT INTO construccion VALUES (101,1,'nico',201,1,'PUERTO','CONSUME',100);
+INSERT INTO construccion VALUES (101,1,'nico',202,1,'PUERTO','CONSUME',50);
+
+-- Argentina: ASTILLERO (usa 203/204) -> SOLO ASTILLERO
+INSERT INTO construccion VALUES (101,2,'rodr',203,1,'ASTILLERO','CONSUME',120);
+INSERT INTO construccion VALUES (101,2,'rodr',204,1,'ASTILLERO','CONSUME',60);
+
+-- Brasil: PUERTO y ASTILLERO (debe quedar excluido por XOR)
+INSERT INTO construccion VALUES (101,3,'ana',201,1,'PUERTO','CONSUME',80);
+INSERT INTO construccion VALUES (101,3,'ana',203,2,'ASTILLERO','CONSUME',70);
+
+-- ==========================================================
+-- EJERCICIO 2
+-- "Jugadores que NO hayan realizado trueques de recursos PBN"
+-- Creamos partida 102 con varios trueques: algunos PBN, otros no.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (102, 1, TO_DATE('2025-10-05','YYYY-MM-DD'), 900);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (102, 2, TO_DATE('2025-10-05','YYYY-MM-DD'), 900);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (102, 4, TO_DATE('2025-10-05','YYYY-MM-DD'), 900);
+
+INSERT INTO paisPartidaJugador VALUES (102,1,'sofia','ANFITRION');
+INSERT INTO paisPartidaJugador VALUES (102,2,'bruno','INVITADO');
+INSERT INTO paisPartidaJugador VALUES (102,4,'marta','SE UNIO');
+
+-- Inventarios para trueques
+-- sofia (UY): PBN y no-PBN
+INSERT INTO inventarioRecurso VALUES (102,1,'sofia',101,100); -- PBN
+INSERT INTO inventarioRecurso VALUES (102,1,'sofia',201,200); -- CONSTRUCCION
+-- bruno (AR)
+INSERT INTO inventarioRecurso VALUES (102,2,'bruno',102,100); -- PBN
+INSERT INTO inventarioRecurso VALUES (102,2,'bruno',202,150); -- CONSTRUCCION
+-- marta (CL)
+INSERT INTO inventarioRecurso VALUES (102,4,'marta',301,300); -- CONSUMO
+INSERT INTO inventarioRecurso VALUES (102,4,'marta',103,80);  -- PBN
+
+-- Trueques
+-- T1: sofia (A) PBN agua (101) <-> bruno (B) PBN medicinas (102)
+INSERT INTO trueque VALUES (1, 102,1,'sofia',101, 102,2,'bruno',102, 50, 60);
+-- T2: bruno (A) CONSTRUCCION (202) <-> marta (B) CONSUMO (301)  (NO PBN)
+INSERT INTO trueque VALUES (2, 102,2,'bruno',202, 102,4,'marta',301, 40, 80);
+-- T3: marta (A) PBN ropa (103) <-> sofia (B) CONSTRUCCION (201) (A es PBN)
+INSERT INTO trueque VALUES (3, 102,4,'marta',103, 102,1,'sofia',201, 30, 30);
+-- Resultado esperado para la consulta: excluir jugadores que hayan hecho trueque con PBN (sofia, bruno, marta participan en PBN como A o B según tu SQL). Dejar además otros en otras partidas sin PBN para que aparezcan.
+
+-- ==========================================================
+-- EJERCICIO 3
+-- "Nombre y alias de jugadores INVITADO en partidas de los últimos 3 meses
+--  y con la mayor configuración de consumo"
+-- Partidas 103 (config 1500, 2025-09-20) y 104 (config 2000, 2025-10-10)
+-- Solo deben salir INVITADO(s) de la de config máxima (104).
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (103, 5, TO_DATE('2025-09-20','YYYY-MM-DD'), 1500);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (103, 6, TO_DATE('2025-09-20','YYYY-MM-DD'), 1500);
+
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (104, 1, TO_DATE('2025-10-10','YYYY-MM-DD'), 2000);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (104, 3, TO_DATE('2025-10-10','YYYY-MM-DD'), 2000);
+
+-- PPJ
+-- Partida 103: algunos INVITADO (pero config 1500 no es la máxima)
+INSERT INTO paisPartidaJugador VALUES (103,5,'juan','INVITADO');
+INSERT INTO paisPartidaJugador VALUES (103,6,'pablo','INVITADO');
+
+-- Partida 104 (máxima 2000): INVITADO que deben aparecer
+INSERT INTO paisPartidaJugador VALUES (104,1,'lucas','INVITADO');  -- Debe salir
+INSERT INTO paisPartidaJugador VALUES (104,3,'celi','INVITADO');   -- Debe salir
+-- y un anfitrión no debería salir
+INSERT INTO paisPartidaJugador VALUES (104,1,'nico','ANFITRION');
+
+-- Inventarios mínimos por FK (no afectan al resultado del ejercicio)
+INSERT INTO inventarioRecurso VALUES (104,1,'lucas',201,10);
+INSERT INTO inventarioRecurso VALUES (104,3,'celi',201,10);
+
+-- ==========================================================
+-- EJERCICIO 4
+-- "Alias de jugadores (lado A) que hayan intercambiado la menor cantidad
+--  de HIERRO (H) en un trueque" -> comparar cantidades lado A, recurso 201.
+-- Partida 105 con varios trueques de H (lado A) con cantidades diferentes.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (105, 2, TO_DATE('2025-08-15','YYYY-MM-DD'), 700);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (105, 3, TO_DATE('2025-08-15','YYYY-MM-DD'), 700);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (105, 4, TO_DATE('2025-08-15','YYYY-MM-DD'), 700);
+
+INSERT INTO paisPartidaJugador VALUES (105,2,'bruno','ANFITRION');
+INSERT INTO paisPartidaJugador VALUES (105,3,'ana','INVITADO');
+INSERT INTO paisPartidaJugador VALUES (105,4,'marta','SE UNIO');
+
+-- Inventarios
+INSERT INTO inventarioRecurso VALUES (105,2,'bruno',201,200);
+INSERT INTO inventarioRecurso VALUES (105,3,'ana',302,150);
+INSERT INTO inventarioRecurso VALUES (105,4,'marta',303,150);
+
+-- Trueques de H (id 201) como A:
+-- bruno (A) 201 vs ana (B) 302
+INSERT INTO trueque VALUES (10, 105,2,'bruno',201, 105,3,'ana',302, 60, 40);
+-- marta (A) 201 vs bruno (B) 303  (para esto, dar stock de 201 a marta)
+INSERT INTO inventarioRecurso VALUES (105,4,'marta',201,100);
+-- Bruno necesita tener el recurso 303 (Alimentos) en su inventario
+INSERT INTO inventarioRecurso VALUES (105,2,'bruno',303,150);
+
+
+INSERT INTO trueque VALUES (11, 105,4,'marta',201, 105,2,'bruno',303, 30, 20);
+
+-- ana (A) 201 vs marta (B) 303  (dar stock de 201 a ana)
+INSERT INTO inventarioRecurso VALUES (105,3,'ana',201,80);
+INSERT INTO trueque VALUES (12, 105,3,'ana',201, 105,4,'marta',303, 15, 10);
+-- -> La menor cantidad A de H es 15 (ana). Debe salir 'ana'.
+
+-- ==========================================================
+-- EJERCICIO 5
+-- "Alias y nombre de jugadores cuyos países consumieron TODOS los recursos
+--  de tipo CONSTRUCCION (201..206) con TipoOperacion='CONSUME' y partidas
+--  con ConfiguracionConsumo > 1000"
+-- Partida 106 (config=1501), un jugador consumirá los 6.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (106, 1, TO_DATE('2025-07-01','YYYY-MM-DD'), 1501);
+INSERT INTO paisPartidaJugador VALUES (106,1,'pablo','ANFITRION');
+
+-- Inventario de los 6 recursos de CONSTRUCCION
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',201,100);
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',202,100);
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',203,100);
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',204,100);
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',205,100);
+INSERT INTO inventarioRecurso VALUES (106,1,'pablo',206,100);
+
+-- Consumir TODOS
+INSERT INTO construccion VALUES (106,1,'pablo',201,1,'USINAS','CONSUME',10);
+INSERT INTO construccion VALUES (106,1,'pablo',202,2,'PLANTACION','CONSUME',10);
+INSERT INTO construccion VALUES (106,1,'pablo',203,3,'ASTILLERO','CONSUME',10);
+INSERT INTO construccion VALUES (106,1,'pablo',204,4,'PUERTO','CONSUME',10);
+INSERT INTO construccion VALUES (106,1,'pablo',205,5,'USINAS','CONSUME',10);
+INSERT INTO construccion VALUES (106,1,'pablo',206,6,'PUERTO','CONSUME',10);
+
+-- Otro jugador que NO consume todos (para contraste)
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (106, 2, TO_DATE('2025-07-01','YYYY-MM-DD'), 1501);
+INSERT INTO paisPartidaJugador VALUES (106,2,'rodr','INVITADO');
+INSERT INTO inventarioRecurso VALUES (106,2,'rodr',201,50);
+INSERT INTO inventarioRecurso VALUES (106,2,'rodr',202,50);
+INSERT INTO construccion VALUES (106,2,'rodr',201,1,'USINAS','CONSUME',5);
+INSERT INTO construccion VALUES (106,2,'rodr',202,1,'USINAS','CONSUME',5);
+
+-- ==========================================================
+-- EJERCICIO 6
+-- "Nombre y tipo de recurso más usado en construcciones"
+-- Considerar solo partidas de los últimos 30 días y SIN trueques.
+-- Partida 107 (2025-10-20) SIN trueques. Usamos repetidamente 202 (Cemento).
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (107, 3, TO_DATE('2025-10-20','YYYY-MM-DD'), 600);
+INSERT INTO paisPartidaJugador VALUES (107,3,'lucas','ANFITRION');
+
+INSERT INTO inventarioRecurso VALUES (107,3,'lucas',202,500);
+INSERT INTO inventarioRecurso VALUES (107,3,'lucas',201,300);
+INSERT INTO inventarioRecurso VALUES (107,3,'lucas',303,300);
+
+-- Construcciones (repetimos 202 varias veces > cualquier otro)
+INSERT INTO construccion VALUES (107,3,'lucas',202,1,'USINAS','CONSUME',30);
+INSERT INTO construccion VALUES (107,3,'lucas',202,2,'USINAS','PRODUCE',20);
+INSERT INTO construccion VALUES (107,3,'lucas',202,3,'PLANTACION','CONSUME',25);
+INSERT INTO construccion VALUES (107,3,'lucas',201,4,'PUERTO','CONSUME',10);
+INSERT INTO construccion VALUES (107,3,'lucas',303,5,'USINAS','PRODUCE',40);
+
+-- SIN TRUEQUES en 107
+
+-- ==========================================================
+-- EJERCICIO 7
+-- "Para cada partida, países con el menor stock acumulado de recursos
+--  de tipo CONSTRUCCION. Considerar solo partidas con algún trueque
+--  donde participó Uruguay/Brasil/Argentina".
+-- Partida 108 con UY, AR, BR y al menos un trueque.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (108, 1, TO_DATE('2025-05-05','YYYY-MM-DD'), 700);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (108, 2, TO_DATE('2025-05-05','YYYY-MM-DD'), 700);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (108, 3, TO_DATE('2025-05-05','YYYY-MM-DD'), 700);
+
+INSERT INTO paisPartidaJugador VALUES (108,1,'nico','ANFITRION');   -- Uruguay
+INSERT INTO paisPartidaJugador VALUES (108,2,'bruno','INVITADO');  -- Argentina
+INSERT INTO paisPartidaJugador VALUES (108,3,'ana','SE UNIO');     -- Brasil
+
+-- Inventarios (CONSTRUCCION) con diferentes stocks
+INSERT INTO inventarioRecurso VALUES (108,1,'nico',201,50);
+INSERT INTO inventarioRecurso VALUES (108,1,'nico',202,10);   -- Uruguay mínimos
+INSERT INTO inventarioRecurso VALUES (108,2,'bruno',201,120);
+INSERT INTO inventarioRecurso VALUES (108,2,'bruno',202,90);
+INSERT INTO inventarioRecurso VALUES (108,3,'ana',201,200);
+INSERT INTO inventarioRecurso VALUES (108,3,'ana',202,80);
+
+-- Trueque (requisito)
+INSERT INTO trueque VALUES (20, 108,1,'nico',201, 108,2,'bruno',201, 10, 10);
+
+-- ==========================================================
+-- EJERCICIO 8
+-- "Países autosuficientes (CONSUMO producidos > consumidos) en partidas
+--  SIN trueques. Mostrar nombre país e IdPartida."
+-- Partida 109 sin trueques. Hacemos que Chile produzca más consumo del que consume.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (109, 4, TO_DATE('2025-10-01','YYYY-MM-DD'), 900);
+INSERT INTO paisPartidaJugador VALUES (109,4,'marta','ANFITRION');
+
+INSERT INTO inventarioRecurso VALUES (109,4,'marta',301,0);
+INSERT INTO inventarioRecurso VALUES (109,4,'marta',302,0);
+INSERT INTO inventarioRecurso VALUES (109,4,'marta',303,0);
+INSERT INTO inventarioRecurso VALUES (109,4,'marta',304,0);
+
+-- Producciones de consumo (altas) y consumos (bajos)
+INSERT INTO construccion VALUES (109,4,'marta',301,1,'USINAS','PRODUCE',500);
+INSERT INTO construccion VALUES (109,4,'marta',302,2,'USINAS','PRODUCE',400);
+INSERT INTO construccion VALUES (109,4,'marta',303,3,'PLANTACION','PRODUCE',300);
+INSERT INTO construccion VALUES (109,4,'marta',304,4,'USINAS','PRODUCE',600);
+
+INSERT INTO construccion VALUES (109,4,'marta',301,5,'USINAS','CONSUME',100);
+INSERT INTO construccion VALUES (109,4,'marta',303,6,'PLANTACION','CONSUME',50);
+
+-- SIN TRUEQUES en 109
+
+-- ==========================================================
+-- EJERCICIO 9
+-- "Partidas creadas en 2025: partida, país, alias, nombre, rol,
+--  descripción del rol, total de usinas y % sobre total de construcciones,
+--  y según rol:
+--    ANFITRION: stock acumulado
+--    SE UNIÓ:   cantidad de trueques lado B
+--    INVITADO:  cantidad de construcciones realizadas"
+-- Partida 110 (2025-03-12) con mezcla de roles y construcciones.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (110, 1, TO_DATE('2025-03-12','YYYY-MM-DD'), 1000);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (110, 2, TO_DATE('2025-03-12','YYYY-MM-DD'), 1000);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (110, 3, TO_DATE('2025-03-12','YYYY-MM-DD'), 1000);
+
+-- Roles
+INSERT INTO paisPartidaJugador VALUES (110,1,'nico','ANFITRION');   -- mostrará stock
+INSERT INTO paisPartidaJugador VALUES (110,2,'celi','INVITADO');    -- mostrará #construcciones
+INSERT INTO paisPartidaJugador VALUES (110,3,'rodr','SE UNIO');     -- mostrará #trueques lado B
+
+-- Inventarios para stock/construcciones/trueques
+INSERT INTO inventarioRecurso VALUES (110,1,'nico',201,300);  -- stock anfitrión
+INSERT INTO inventarioRecurso VALUES (110,2,'celi',202,200);
+INSERT INTO inventarioRecurso VALUES (110,2,'celi',301,150);
+INSERT INTO inventarioRecurso VALUES (110,3,'rodr',303,180);
+
+-- Construcciones (incluyendo USINAS para KPI)
+-- celi (INVITADO): hace varias
+INSERT INTO construccion VALUES (110,2,'celi',202,1,'USINAS','CONSUME',40);   -- USINAS
+INSERT INTO construccion VALUES (110,2,'celi',301,2,'USINAS','PRODUCE',60);   -- USINAS
+INSERT INTO construccion VALUES (110,2,'celi',202,3,'PUERTO','CONSUME',10);
+-- nico (ANFITRION): alguna
+INSERT INTO construccion VALUES (110,1,'nico',201,1,'PLANTACION','CONSUME',20);
+-- rodr (SE UNIÓ): una
+INSERT INTO construccion VALUES (110,3,'rodr',303,1,'ASTILLERO','CONSUME',15);
+
+-- Trueques para que rodr tenga participación lado B:
+-- Darle algún inventario CONSTRUCCION/CONSUMO compatible
+INSERT INTO inventarioRecurso VALUES (110,1,'nico',302,120);
+INSERT INTO inventarioRecurso VALUES (110,3,'rodr',302,90);
+
+-- trueque: celi (A) 202 -> rodr (B) 302
+INSERT INTO trueque VALUES (30, 110,2,'celi',202, 110,3,'rodr',302, 25, 35);
+-- trueque: nico (A) 302 -> rodr (B) 303
+INSERT INTO trueque VALUES (31, 110,1,'nico',302, 110,3,'rodr',303, 10, 5);
+-- rodr aparece con 2 trueques en lado B.
+
+-- ==========================================================
+-- EJERCICIO 10
+-- "Para cada recurso: #partidas donde fue utilizado en últimos 15 días,
+--  #construcciones, país que más y menos lo utilizó"
+-- Partida 111 (2025-10-25) dentro de últimos 15 días, y 112 (2025-10-30),
+-- con distintos países usando recursos variados para generar máximos/mínimos.
+-- ==========================================================
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (111, 5, TO_DATE('2025-10-25','YYYY-MM-DD'), 850);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (111, 6, TO_DATE('2025-10-25','YYYY-MM-DD'), 850);
+
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (112, 1, TO_DATE('2025-10-30','YYYY-MM-DD'), 900);
+INSERT INTO partida (IdPartida, IdPais, FechaCreacion, ConfiguracionConsumo) VALUES (112, 2, TO_DATE('2025-10-30','YYYY-MM-DD'), 900);
+
+-- PPJ
+INSERT INTO paisPartidaJugador VALUES (111,5,'juan','ANFITRION');   -- Perú
+INSERT INTO paisPartidaJugador VALUES (111,6,'pablo','INVITADO');   -- Paraguay
+INSERT INTO paisPartidaJugador VALUES (112,1,'sofia','ANFITRION');  -- Uruguay
+INSERT INTO paisPartidaJugador VALUES (112,2,'bruno','INVITADO');   -- Argentina
+
+-- Inventarios mínimos
+INSERT INTO inventarioRecurso VALUES (111,5,'juan',201,200);
+INSERT INTO inventarioRecurso VALUES (111,6,'pablo',202,200);
+INSERT INTO inventarioRecurso VALUES (111,5,'juan',301,200);
+INSERT INTO inventarioRecurso VALUES (112,1,'sofia',201,200);
+INSERT INTO inventarioRecurso VALUES (112,2,'bruno',301,200);
+
+-- Construcciones en 111 (Perú/Paraguay)
+INSERT INTO construccion VALUES (111,5,'juan',201,1,'PUERTO','CONSUME',20);
+INSERT INTO construccion VALUES (111,6,'pablo',202,1,'ASTILLERO','CONSUME',20);
+INSERT INTO construccion VALUES (111,5,'juan',301,2,'USINAS','PRODUCE',40);
+
+-- Construcciones en 112 (Uruguay/Argentina)
+INSERT INTO construccion VALUES (112,1,'sofia',201,1,'USINAS','CONSUME',30);
+INSERT INTO construccion VALUES (112,2,'bruno',301,1,'USINAS','PRODUCE',50);
+INSERT INTO construccion VALUES (112,2,'bruno',301,2,'USINAS','CONSUME',10);
+-- Con esto, por ejemplo:
+--  - Recurso 201 usado en 2 partidas (111,112)
+--  - Recurso 301 usado en 2 partidas (111,112), y bruno lo usa más veces
+--  - País menos veces dependerá del reparto mostrado arriba
+
+-- ==========================================================
+-- FIN DEL SCRIPT
+-- ==========================================================
+
+
+--------------------------------------------------------------------
+
 /*
 1) Obtener todos los datos de los países que hayan construido puertos o astilleros, pero no ambos.
 Considerar aquellas construcciones donde únicamente se utilizaron recursos del tipo
 construcción.
-Preguntas antes de entregar:
-Si un pais tiene ambas contrucciones pero una de ellas no uso recursos de construccion deberia aparecer en el resultado de la consulta:
-Pais
--> 1 - Uruguay
-Construccion
-1 -> Astillero
-1 -> Puerto
-Recurso
-1 - Construccion
-2 - Otro
-=> Resultado Uruguay aparece en la consulta ya que aunque tiene ambas construcciones una no fue hecha con recursos del tipo construccion.
 */
 
 SELECT P.IDPAIS, P.NOMBREPAIS FROM PAIS P WHERE P.IDPAIS IN (
@@ -29,7 +410,6 @@ SELECT P.IDPAIS, P.NOMBREPAIS FROM PAIS P WHERE P.IDPAIS IN (
 2) Obtener el id de la partida, el nombre del país, la fecha de creación de la partida y el Alias de
 los jugadores que no hayan realizado trueques de recursos del tipo producto básico nacional
 (PBN).
-Preguntas:
 
 */
 
@@ -108,20 +488,21 @@ dichas partidas no hayan tenido ningún trueque
  */
 select R.NOMBRE, R.TIPORECURSO from RECURSO R
 where R.IDRECURSO in (
-select C.IDRECURSO from CONSTRUCCION c
-where C.IDCONSTRUCCION  in (select C.IDCONSTRUCCION  from CONSTRUCCION c join PARTIDA p 
-on C.IDPAIS = P.IDPAIS and C.IDPARTIDA  = P.IDPARTIDA
-where (SYSDATE - P.FECHACREACION) < 30 and C.IDPARTIDA in (
-select distinct i.IDPARTIDA  from INVENTARIORECURSO i
-where I.IDPARTIDA not in (select distinct T.IDPARTIDAA  from TRUEQUE t)))
-group by C.IDRECURSO 
-having Count(*) = (select Max(Count(*)) from CONSTRUCCION c2 group by C2.IDRECURSO));
+		select C.IDRECURSO from CONSTRUCCION c
+		where C.IDCONSTRUCCION  in (
+			select C.IDCONSTRUCCION  from CONSTRUCCION c 
+			join PARTIDA p on C.IDPAIS = P.IDPAIS and C.IDPARTIDA  = P.IDPARTIDA
+			where (SYSDATE - P.FECHACREACION) < 30 and C.IDPARTIDA in (
+				select distinct i.IDPARTIDA  from INVENTARIORECURSO i
+				where I.IDPARTIDA not in (select distinct T.IDPARTIDAA  from TRUEQUE t)))
+				group by C.IDRECURSO 
+				having Count(*) = (select Max(Count(*)) from CONSTRUCCION c2 group by C2.IDRECURSO));
 
 /*
- 7) Listar para cada partida, el nombre de los países con el menor stock acumulado de recursos de
+7) Listar para cada partida, el nombre de los países con el menor stock acumulado de recursos de
 tipo “CONSTRUCCIÓN”. Considerar solamente las partidas que hayan realizado algún trueque
 en los que participó el país “Uruguay”, “Brasil” o “Argentina” 
- */
+*/
 
 select distinct P.NOMBREPAIS from Pais p
 	join PARTIDA pr on PR.IDPAIS = P.IDPAIS 
@@ -136,4 +517,65 @@ select distinct P.NOMBREPAIS from Pais p
 			select MIN(SUM(I2.STOCKACUMULADO)) from INVENTARIORECURSO i2 
 			WHERE i2.idPartida = i.idPartida
 			group by I2.IDPARTIDA, I2.IDPAIS));
+
+/*
+8) Obtener el nombre de los países que son autosuficientes. 
+Un país se considera autosuficiente en una partida si el total de recursos de tipo “CONSUMO” que producen es mayor que el total de recursos del mismo tipo que consumen. 
+Considerar solo las partidas que aún no han tenido ningún trueque. Mostrar el nombre del país y el id de la partida en la que cumpla esta condición. 
+*/
+select P.NOMBREPAIS from PARTIDA pa 
+join PAIS p on PA.IDPAIS = P.IDPAIS
+join (
+	select C.IDPARTIDA as partida_construccion, 
+	C.IDPAIS as pais_construccion, 
+	SUM(case when C.tipoOperacion = 'CONSUME' THEN C.cantidadRecurso ELSE 0 end) as cant_recurso_consumo, 
+	SUM(case when C.tipoOperacion = 'PRODUCE' THEN C.cantidadRecurso ELSE 0 end) as cant_recurso_produce from CONSTRUCCION C 
+	where (C.IDPARTIDA, C.IDPAIS) in (
+		select I.IDPARTIDA , I.IDPAIS from INVENTARIORECURSO I 
+		join RECURSO r on I.IDRECURSO = R.IDRECURSO and R.TIPORECURSO = 'CONSUMO'
+		)
+		and C.IDPARTIDA not in (
+			select distinct idPartidaA from trueque
+			union
+			select distinct idPartidaB from trueque)
+	group by C.IDPARTIDA, C.IDPAIS) on PA.IDPARTIDA =  partida_construccion and PA.IDPAIS = pais_construccion
+where (cant_recurso_produce - cant_recurso_consumo) > 0;
+
+/*
+9) Obtener la partida, el país, el alias, el nombre de los jugadores y el rol, que participaron en
+partidas creadas en el año 2025.
+Incluir además una columna con la descripción del rol (”ANFITRION” deberá de aparecer
+como “Creador de la partida”, si es “INVITADO” su descripción será “Invitado por el anfitrión” y
+si el rol es “SE UNIO”, deberá ser descripto como “Se unió voluntariamente”).
+Mostrar también la cantidad total de construcciones de tipo usina y el porcentaje que representa
+dicha cantidad sobre el total de construcciones.
+Finalmente, según el rol, mostrar:
+ANFITRIÓN: stock acumulado de los recursos.
+SE UNIÓ: cantidad de trueques en los que participó (del lado B del trueque).
+INVITADO: la cantidad de construcciones realizadas.
+*/
+
+
+
+
+
+/*
+10) Para cada recurso, obtener la cantidad de partidas donde fue utilizado en los últimos 15 días.
+Obtener la cantidad de construcciones para las que se utilizó este recurso. Obtener el nombre
+del país que utilizó más veces el recurso y el que menos lo utilizó. 
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
