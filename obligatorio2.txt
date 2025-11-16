@@ -556,7 +556,22 @@ INVITADO: la cantidad de construcciones realizadas.
 */
 
 
-
+select PPJ.IDPARTIDA, PPJ.IDPAIS, PPJ.ALIAS, J.NOMBREJUGADOR, PPJ.ROL,
+(case when upper(PPJ.ROL) = 'ANFITRION' then 'Creador de la partida' else (case when upper(PPJ.ROL) = 'INVITADO' then 'Invitado por el anfitrión' else (case when upper(PPJ.ROL) = 'SE UNIO' then 'Se unió voluntariamente' end) end) end) as rol_descripcion, 
+(NVL((select COUNT(C.IDCONSTRUCCION) from construccion c where upper(C.TIPOCONSTRUCCION) = 'USINAS' and C.IDPARTIDA = PPJ.IDPARTIDA and C.IDPAIS = PPJ.IDPAIS group by C.IDPARTIDA, C.IDPAIS), 0)) 
+as cantidad_usinas,
+(NVL(( select COUNT(C.IDCONSTRUCCION) from construccion c where upper(C.TIPOCONSTRUCCION) = 'USINAS' and C.IDPARTIDA = PPJ.IDPARTIDA and C.IDPAIS = PPJ.IDPAIS group by C.IDPARTIDA, C.IDPAIS), 0)) /
+(NVL((select COUNT(C.IDCONSTRUCCION) from construccion c where C.IDPARTIDA = PPJ.IDPARTIDA and C.IDPAIS = PPJ.IDPAIS group by C.IDPARTIDA, C.IDPAIS), 1)) * 100 
+as porcentaje_representa,
+case
+	when upper(PPJ.ROL) = 'ANFITRION' then (select SUM(I.STOCKACUMULADO) from INVENTARIORECURSO I where I.IDPARTIDA = PPJ.IDPARTIDA and I.IDPAIS = PPJ.IDPAIS and I.ALIAS = PPJ.ALIAS)
+	when upper(PPJ.ROL) = 'SE UNIO' then (select COUNT(T.IDTRUEQUE) from TRUEQUE T where T.IDPARTIDAB = PPJ.IDPARTIDA and T.IDPAISB = PPJ.IDPAIS and T.JUGADORB = PPJ.ALIAS)
+	when upper(PPJ.ROL) = 'INVITADO' then (select COUNT(C.IDCONSTRUCCION) from construccion c where C.IDPARTIDA = PPJ.IDPARTIDA and C.IDPAIS = PPJ.IDPAIS and C.ALIAS = PPJ.ALIAS)
+end as caracteristica_por_rol
+from PAISPARTIDAJUGADOR PPJ 
+join PARTIDA P on PPJ.IDPAIS = P.IDPAIS and PPJ.IDPARTIDA = P.IDPARTIDA and EXTRACT(year from P.FECHACREACION) = 2025
+join JUGADOR J on PPJ.ALIAS = J.ALIAS
+order by PPJ.IDPARTIDA, PPJ.IDPAIS;
 
 
 /*
