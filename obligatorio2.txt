@@ -576,9 +576,42 @@ order by PPJ.IDPARTIDA, PPJ.IDPAIS;
 
 /*
 10) Para cada recurso, obtener la cantidad de partidas donde fue utilizado en los últimos 15 días.
-Obtener la cantidad de construcciones para las que se utilizó este recurso. Obtener el nombre
-del país que utilizó más veces el recurso y el que menos lo utilizó. 
+Obtener la cantidad de construcciones para las que se utilizó este recurso. 
+Obtener el nombre del país que utilizó más veces el recurso y el que menos lo utilizó. 
 */
+
+select base.idRecurso, base.cantidad_partidas, base.cantidad_construcciones, p_max.nombrePais as pais_max_uso, p_min.nombrePais as pais_min_uso from (
+    select C.IDRECURSO, COUNT(distinct C.IDPARTIDA) as cantidad_partidas, 
+    	(
+    		select COUNT(distinct C1.IDCONSTRUCCION) from CONSTRUCCION c1 where C.IDRECURSO = C1.IDRECURSO) as cantidad_construcciones 
+    		from CONSTRUCCION c
+    		join PARTIDA p on C.IDPARTIDA = P.IDPARTIDA
+    		where (SYSDATE - P.FECHACREACION) <= 15 group by C.IDRECURSO
+) base 
+join (
+	select u.idRecurso, u.idPais from (
+		select C.idRecurso, C.idPais, count(*) as usos from CONSTRUCCION C group by C.idRecurso, C.idPais
+	) u
+    join (
+		select x.idRecurso, max(x.usos) as max_uso from (
+            select C.idRecurso, C.idPais, count(*) as usos from CONSTRUCCION C group by C.idRecurso, C.idPais 
+         ) x group by x.idRecurso
+    ) mx on mx.idRecurso = u.idRecurso and mx.max_uso = u.usos
+) max_uso on max_uso.idRecurso = base.idRecurso
+join PAIS p_max on p_max.idPais = max_uso.idPais
+join (
+    select u2.idRecurso, u2.idPais from (
+        select C.idRecurso, C.idPais, count(*) as usos from CONSTRUCCION C group by C.idRecurso, C.idPais
+    ) u2
+    join (
+        select y.idRecurso, min(y.usos) as min_uso from (
+            select C.idRecurso, C.idPais, count(*) as usos from CONSTRUCCION C group by C.idRecurso, C.idPais) y group by y.idRecurso
+    ) mn on mn.idRecurso = u2.idRecurso and mn.min_uso = u2.usos
+) min_uso on min_uso.idRecurso = base.idRecurso
+join PAIS p_min on p_min.idPais = min_uso.idPais;
+
+
+
 
 
 
